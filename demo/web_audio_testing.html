@@ -1,0 +1,171 @@
+<html>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  		<script src="http://code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
+		
+		<!--HOWLER AUDIO LIBERARY-->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.0.1/howler.core.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.0.1/howler.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.0.1/howler.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.0.1/howler.spatial.min.js"></script>
+		
+		<script type="text/javascript">
+		
+			var sound = new Howl({
+		      	src: ['https://s3.amazonaws.com/freecodecamp/simonSound1.mp3']
+		    });
+			var SoundHandler = function () {
+				this.redColorSoundBuffer = null;
+				this.blueColorSoundBuffer = null;
+				this.greenColorSoundBuffer = null;
+				this.yellowColorSoundBuffer = null;
+				// Fix up prefixing
+				this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+				
+				// create Oscillator and gain node
+				this.oscillator = this.audioCtx.createOscillator();
+				this.gainNode = this.audioCtx.createGain();
+
+				this.oscillator.detune.value = 100; // value in cents
+				//this.oscillator.start(0);
+				this.gainNode.gain.value = 0.001;
+				
+				// connect oscillator to gain node to speakers
+				this.oscillator.connect(this.gainNode);
+				this.gainNode.connect(this.audioCtx.destination);
+				
+
+				this.disconnectSound = function() {
+					this.gainNode.disconnect(this.audioCtx.destination);
+				}
+				// Create the XHR object.
+
+				
+				
+				/* this.loadSound("./audio/simonSound1.mp3", "RED");
+				this.loadSound("./audio/simonSound2.mp3", "BLUE");
+				this.loadSound("./audio/simonSound3.mp3", "GREEN");
+				this.loadSound("./audio/simonSound4.mp3", "YELLOW"); */
+			};
+			
+			var soundObj = new SoundHandler();
+			loadSound("https://s3.amazonaws.com/freecodecamp/simonSound1.mp3", "RED");
+			loadSound("https://s3.amazonaws.com/freecodecamp/simonSound2.mp3", "BLUE");
+			loadSound("https://s3.amazonaws.com/freecodecamp/simonSound3.mp3", "GREEN");
+			loadSound("https://s3.amazonaws.com/freecodecamp/simonSound4.mp3", "YELLOW");
+			function createCORSRequest (method, url) {
+				  var xhr = new XMLHttpRequest();
+				  if ("withCredentials" in xhr) {
+				    // XHR for Chrome/Firefox/Opera/Safari.
+				    xhr.open(method, url, true);
+				  } else if (typeof XDomainRequest != "undefined") {
+				    // XDomainRequest for IE.
+				    xhr = new XDomainRequest();
+				    xhr.open(method, url);
+				  } else {
+				    // CORS not supported.
+				    xhr = null;
+				  }
+				  return xhr;
+			}
+
+			function loadSound(url, colorName) {
+				var ajaxSettingObj = {
+						dataType : "arraybuffer",
+						type : "GET",
+						crossDomain : true,
+						xhrFields : {
+							'withCredentials' : true
+						},
+						headers : {
+							"Access-Control-Allow-Origin" : "*"
+						},
+						success : function(data) {
+							context.decodeAudioData(data, function(buffer) {
+								switch (colorName) {
+								case "RED":
+									soundObj.redColorSoundBuffer = buffer;
+									break;
+								case "BLUE":
+									soundObj.blueColorSoundBuffer = buffer;
+									break;
+								case "YELLOW":
+									soundObj.yellowColorSoundBuffer = buffer;
+									break;
+								case "GREEN":
+									soundObj.greenColorSoundBuffer = buffer;
+									break;
+								}
+
+							}, onError);
+						},
+
+						// Code to run if the request fails; the raw request and
+						// status codes are passed to the function
+						error : function(xhr, status, errorThrown) {
+
+							console.log("Error: " + errorThrown);
+							console.log("Status: " + status);
+							console.log(xhr);
+						},
+
+						// Code to run regardless of success or failure
+						complete : function(xhr, status) {
+							console.log("The request is complete!");
+						}
+					};
+				 $.ajax(url, ajaxSettingObj);
+			}
+/* 			function loadSound(url, colorName) {
+				var request = this.createCORSRequest("GET", url);
+				
+				request.responseType = 'arraybuffer';
+				var currentObj = this;
+				// Decode asynchronously
+				request.onload = function() {
+					context.decodeAudioData(request.response, function(buffer) {
+						switch (colorName) {
+						case "RED":
+							currentObj.redColorSoundBuffer = buffer;
+							break;
+						case "BLUE":
+							currentObj.blueColorSoundBuffer = buffer;
+							break;
+						case "YELLOW":
+							currentObj.yellowColorSoundBuffer = buffer;
+							break;
+						case "GREEN":
+							currentObj.greenColorSoundBuffer = buffer;
+							break;
+						}
+
+					}, onError);
+				}
+				request.send();
+			}; */
+
+			function makeSound() {
+				/* soundObj.oscillator.start();
+				var maxFreq = 6000;
+				var maxVol = 0.02;
+
+				var initialFreq = 3000;
+				var initialVol = 0.001;
+
+				soundObj.oscillator.frequency.value = maxFreq;
+				soundObj.gainNode.gain.value = maxVol; */
+				sound.play();
+			}
+			function muteSound() {
+				//soundObj.oscillator.stop()
+				sound.stop();
+			}
+			//makeCorsRequest();
+		</script>
+	</head>
+	<body>
+		<input type="button" onclick="makeSound();" value="Make Sound" />
+		
+		<input type="button" onclick="muteSound();" value="Mute Sound" />
+	</body>
+</html>

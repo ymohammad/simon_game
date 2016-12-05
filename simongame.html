@@ -1,30 +1,36 @@
 <html>
 	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		
 		<!-- LINK CSS FILES -->
-		<link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+		<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+	    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	    
 		<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Gravitas+One">
-		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Black+Ops+One">
-		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Alegreya">
-		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Baloo+Chettan">
-		<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
+		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Alfa+Slab+One">
+	 	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Oswald">
+		<!--<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Baloo+Chettan"> -->
 		
 		<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
-		
-
+		<link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  		<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+  
+  		<script src="./simongame.js"></script>
 		<link rel="stylesheet" type="text/css" href="./alysufiyan_common.css">
 		<link rel="stylesheet" type="text/css" href="./simongame.css">
 		
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-  		<script src="http://code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
-  		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-  		<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
-  		<script src="./simongame.js"></script>
-
 		<title>Simon Game - Free Code Camp</title>
 	</head>
 	<body>
 		<div class="game-container">
+		<div class="row center">
+			<span id="current_session_id"></span>
+		</div>
+		 
 		 <div class="game-internal-container">
 			  <div class="row" >
 			      <div class="disable-smallbox"></div>
@@ -36,26 +42,26 @@
 			      <div class="c-center-box">
 			      		<div class="c-center-cirle">
 			      			<div class="heading-div">
-			      				<p class="title">simon <sup class="trademark">&reg;</sup></p>
-			      				<table id="command-btn-tb">
+			      				<p class="title">Simon <sup class="trademark">&reg;</sup></p>
+			      				<table id="command-btn-tb" style="margin-left: 12%; margin-right: 5%;">
 			      					<tr>
 			      						<td colspan="3"><input id="cnt_id" class="screen" type="text" readonly value="--"/></td>
 			      					</tr>
 			      					<tr>
-			      						<td colspan="3" class="btn-labels">Count</td>
+			      						<td colspan="3" class="btn-labels"><span style="margin-left: 8%;">Count</span></td>
 			      					</tr>
 			      					<tr>
 			      						<td colspan="3" class="btn-labels">&nbsp;</td>
 			      					</tr>
 			      					<tr>
-			      						<td><input id="togglebtn" type="checkbox"></td>
-			      						<td class="btn-labels"><div class="btn-game" id="start"></div></td>
-			      						<td class="btn-labels"><div class="btn-game" id="strict"></div></td>
+			      						<td><input style="border-radius: 20px;"id="togglebtn" type="checkbox"></td>
+			      						<td ><div class="btn-game btn-game-unclicked" id="start"></div></td>
+			      						<td ><div class="btn-game btn-game-unclicked" id="strict"></div></td>
 			      					</tr>
 			      					<tr>
 			      						<td></td>
-			      						<td class="btn-labels">Start</td>
-			      						<td class="btn-labels">Strict</td>
+			      						<td class="btn-labels" style="text-align: left; padding-top: 2%;" id="start-td">Start</td>
+			      						<td class="btn-labels" style="text-align: left; padding-top: 2%;">Strict</td>
 			      					</tr>
 			      				</table>
 			      				
@@ -70,21 +76,26 @@
 			      <div id="3" class="h-box green-box"></div>
 			      <div class="disable-smallbox"></div>
 			  </div>
-			  <span id="current_session_id">Computer's Turn</span>
 		  </div>
 		  
 		</div>
+		
+		<div id="dialog-confirm" class="ui-helper-hidden">
+		  	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>
+		  	Game will be restarted. Are you sure?</p>
+		</div>
+
 		<!-- <div class="row">
 			<div id="current_session_id" class="col-md-6 center">
 				
 			</div>
 		</div> -->
-		<!-- 
+		
 		<div class="site-footer" id="footer-div">
 				<div>Developed by <a href="https://www.linkedin.com/in/mohammad-sufiyan-al-yousufi-0279743a" target="_blank" style="font-size: inherit;">Mohammad Sufiyan Al Yousufi</a>.<br>Contact information: <a href="mailto:mdsufyan2005@gmail.com" style="font-size: inherit;">mdsufyan2005@gmail.com</a><br>
-			  © 2016 AlySufiyan Software Development Labs </div>
+			  Â© 2016 AlySufiyan Software Development Labs </div>
 		</div>
-		 -->
+		 
 	</body>
 </html>
 
