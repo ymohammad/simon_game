@@ -1,12 +1,16 @@
 body {
 	background-color: #567b81;
 }
+#command-btn-tb table {
+
+}
 #command-btn-tb td{
 	text-align: center;
+	font-weight: bold;
 }
 .btn-labels {
-	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-    font-size: 14px;
+	font-family: 'Oswald',Arial,sans;
+    font-size: 12px;
 }
 .brand-superscript {
   font-size : 0.3em;
@@ -18,10 +22,11 @@ body {
 	position: absolute;
 }
 .title {
-	font-family: Impact, Charcoal, sans-serif;
-	font-size: 2.4em;
+	font-family: 'Alfa Slab One', cursive;
+	font-size: 3.4em;
 	font-weight: bold;
-	margin-top: 12%;
+	margin-top: 20%;
+	margin-left:9%;
 	color : #222;
 	text-align: center;
     width: 100%
@@ -39,7 +44,7 @@ body {
     width: 90%;
     height: 100%;
     margin-left: 5%;
-    background-color: #c3dee8;
+    background-color: #8cc0d3;
 }
 .c-center-box {
   border-radius:0%;
@@ -47,8 +52,12 @@ body {
   border: 1px solid #333;
   display: inline-block;
   background-color: #000;
-  height: 65%;
-  width: 65%;
+  height: 67%;
+  width: 67%;
+  
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+   border-radius: 4px;
 
 }
 .v-box {
@@ -56,69 +65,83 @@ body {
   position: relative;
   border: 1px solid #333;
   display: inline-block;
-  height: 65%;
-  width: 10%;
+  height: 67%;
+  width: 12%;
+  -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2);
 }
 .red-box {
-	background-color: #9f0f17;
+	background-color: #5f090d;
 }
 .blue-box {
-	background-color: #094a8f;
+	background-color: #052c55;
+	border: solid 1px #20538D;
 }
 .h-box {
   border-radius:0%;
   position: relative;
   border: 1px solid #333;
   display: inline-block;
-  width: 65%;
-  height: 10%;
+  width: 67%;
+  height: 12%;
+  
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2);
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+   border-radius: 4px;
 }
 .yello-box {
-  background-color: #cca707;
+  background-color: #a38505;
 }
 .green-box {
-  background-color: #00a74a;
+  background-color: #00642c;
 }
 .disable-smallbox {
-  width:10%;
-  height:10%;
+  width:12%;
+  height:12%;
   border-radius:0%;
   position:relative;
-  background-color:gray;
+  background-color:#404040;
   border: 1px solid #333;
   display: inline-block;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+   border-radius: 4px;
 }
 .game-internal-container {
-	margin: 5% 0% 5% 10%;
+	margin: 2% 0% 5% 10%;
+	width: 480px;
+    height: 480px;
 }
 .game-container{
-    width: 400px;
-    height: 380px;
+    width: 560px;
+    height: 595px;
     position: relative;
     border-radius: 3%;
-    top: 18%;
-    left: 20%;
+    margin-top: 3%;
+    margin-left: 30%;
     background-color: #ECE7EE;
     border: 1px solid #333;
     display: inline-block;
 }
 .screen {
-    
-	width: 20%;
-    /* border-radius: 5px; */
+	width: 22%;
+    border-radius: 5px;
     padding: 0 5px;
     background: rgba(0, 0, 0, 0.8);
     line-height: 25px;
     color: white;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-    /* text-align: right; */
+    text-align: center;
     letter-spacing: 1px;
     font-size: 20px;
     font-weight: bold;
     font-family: 'Lucida Bright', Georgia, serif;
+    margin-left: 8%;
 }
 .btn-game {
-	background-color: yellow;
 	border: 4px solid #000000;
 	border-radius: 100%;
 	box-shadow: 0 0 .4em #222222;
@@ -126,14 +149,34 @@ body {
 	height: 1.6em;
 	width: 1.5em;
 }
-
-.btn-game:active {
+.btn-game-unclicked {
+	background-color: yellow;
+}
+.btn-game-clicked {
 	background-color: red;
 	transform: scale(0.9);
 }
+
+
 .clickable {
 	pointer-events: auto;
 }
 .unclickable {
 	pointer-events: none;
+} 
+#current_session_id {
+    font-family: 'VT323', monospace;
+    color: #DC0D29;
+    padding: 0px;
+    font-size: 1.5em;
+    width: 474px;
+    background-color: #32050C;
+    position: relative;
+    border: 4px solid #222;
+    border-radius: 10px;
+    margin-left: 9.5%;
+    margin-top: 3%;
+    display: inline-block;   
+    text-align:center;
+    padding:3%;
 }

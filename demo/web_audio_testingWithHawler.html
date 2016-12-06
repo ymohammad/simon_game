@@ -1,0 +1,53 @@
+<html>
+	<head>
+		<script type="text/javascript">
+		
+		var SoundHandler = function () {
+			
+			var redSoundId = new Audio('https://s3.amazonaws.com/freecodecamp/simonSound1.mp3');
+			var blueSoundId = new Audio('https://s3.amazonaws.com/freecodecamp/simonSound2.mp3');
+			var greenSoundId = new Audio('https://s3.amazonaws.com/freecodecamp/simonSound3.mp3');
+			var yellowSoundId = new Audio('https://s3.amazonaws.com/freecodecamp/simonSound4.mp3');
+			
+			var errorTone = new Audio('http://www.soundjay.com/button/beep-03.mp3');
+			this.playBeep = function(buttonNumber) {
+				if (buttonNumber === 1) {
+					redSoundId.play();
+				}
+				else if (buttonNumber === 2) {
+					blueSoundId.play();
+				}
+				else if (buttonNumber === 3) {
+					greenSoundId.play();
+				}
+				else if (buttonNumber === 4) {
+					yellowSoundId.play();
+				}
+			};
+			
+			this.playError = function() {
+				errorTone.play();
+			}
+		};
+			
+			var soundObj = new SoundHandler();
+
+			function makeSound(buttonNumber) {
+				soundObj.playBeep(buttonNumber);
+			}
+			function errorTone() {
+				soundObj.playError();
+			}
+		</script>
+	</head>
+	<body>
+		<input type="button" onclick="makeSound(1);" value="Red" />
+		<input type="button" onclick="makeSound(2);" value="Blue" />
+		<input type="button" onclick="makeSound(3);" value="Yellow" />
+		<input type="button" onclick="makeSound(4);" value="Green" />
+		
+		<br><br><br>
+		
+		<input type="button" onclick="errorTone();" value="Error Tone" />
+	</body>
+</html>

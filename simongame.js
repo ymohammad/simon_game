@@ -1,39 +1,72 @@
+
+//Basic data information.
 var colorLightArr = ["#fed93f", "#1c8cff", "#13ff7c", "#ff4c4c"];
 var onOffBtnId = "togglebtn";
 var starBtnId = "start";
 var strictBtnId = "strict";
+
+//Command Names for Thread and other actions.
 var userActionCheckerCommand = "userActionChecker";
 var computerActionCommand = "computerAction";
 var userActionCommand = "userAction";
+
+
+//Messages on the Screen..
+var ERROR_MSG = "Incorrect Move.";
+var USER_TURN = "Your Turn.";
+var COMPUTER_TURN = "Computer Turn.";
+var ERROR_REPEAT = "Repeating Sequence.";
+var TIME_OUT_ERROR = "User Action Time out.";
+var GAME_STARTING = "Staring the game...";
+var GAME_NOT_STARTED = "Game is not Started.";
+var GAME_STOPPED = "Game stopped.";
+var GAME_RESTARTING = "Restarting the Game.";
+var GAME_PAUSE = "Game is paused.";
+var GAME_WIN_MSG = "You have won the Game!";
+
+
 //User action timeout in seconds. If reaches then stops the game.
-var userActionTimeout = 30;
+var userActionTimeout = 5;
+var delayNextAction = 500;
+var delayForNextUser = 400;
+var restartDelay = 2000;
+var winStepsCount = 20;
+
+//Global Game Controller Objects.
 var simonGameApp = null;
 var userActionObj = null;
-
+var soundObj = null;
+var isGamePause = false;
 var jqeui 	 = jQuery.noConflict();
+
 jqeui(function() {
 	//Basic Properties..
 	changeButtonsPointerEvent('unclickable', 'clickable');
+	updateSessionInfo(GAME_NOT_STARTED);
 	simonGameApp = new SimonGameApp();
 	userActionObj = new UserAction(userActionTimeout);
+	soundObj = new SoundHandler();
 	
 	jqeui('#' + starBtnId).on("click", function () {
 		if (simonGameApp.isGameStart) {
 			
 			if (!simonGameApp.isGameRunning) {
-				jqeui(this).css('background-color', 'red');
-				jqeui(this).css('transform','scale(0.9)');
+				updateCssClass(starBtnId, 'btn-game-clicked', 'btn-game-unclicked');
+				jqeui('#start-td').html("Restart");
+				updateSessionInfo(GAME_STARTING);
 				if (simonGameApp.startGameSequenceId) {
 					clearInterval(simonGameApp.startGameSequenceId);
 				}
 				simonGameApp.startGameSequenceId = setInterval(computerActionThread, 1000);
 				simonGameApp.isGameRunning = true;
 				//User action checking thread.
-				//userActionObj.userActionCheckerId = setInterval(userActionCheckerThread, 500);
+				userActionObj.userActionCheckerId = setInterval(userActionCheckerThread, 1000);
 			} else {
-				jqeui(this).css('background-color', 'yellow');
-				jqeui(this).css('transform','scale(0)');
-				resetGame();
+				//updateCssClass(starBtnId, 'btn-game-unclicked', 'btn-game-clicked');
+				//stopGame();
+				updateSessionInfo(GAME_PAUSE);
+				killRunnginThreads();
+				confirmNRestartGame();
 			}
 			
 		} else {
@@ -42,7 +75,14 @@ jqeui(function() {
 		
 	});
 	jqeui('#' + strictBtnId).on("click", function () {
-		simonGameApp.isStrictMode = true;
+		if (!simonGameApp.isStrictMode) {
+			simonGameApp.isStrictMode = true;
+			updateCssClass(strictBtnId, 'btn-game-clicked', 'btn-game-unclicked');
+		} else {
+			simonGameApp.isStrictMode = false;
+			updateCssClass(strictBtnId, 'btn-game-unclicked', 'btn-game-clicked');
+		}
+		
 	});
 
 	jqeui('#1').on('click', function() {
@@ -59,36 +99,101 @@ jqeui(function() {
 	});
 	
 	jqeui('#'+ onOffBtnId).bootstrapToggle({
-		size:'mini'
+		size:'small'
 	 });
 	
 	jqeui('#'+ onOffBtnId).change(function() {
-		simonGameApp.isGameStart = jqeui(this).prop('checked');
 		if (!jqeui(this).prop('checked')) {
+			stopGame();
+			simonGameApp.isGameStart = false;
+			jqeui('#cnt_id').val('');
+		} else {
 			resetGame();
+			simonGameApp.isGameStart = true;
+			jqeui('#cnt_id').val('--');
 		}
 	});
 });
-function changeButtonsPointerEvent(cssClassName, oldClassName) {
-	if (oldClassName) {
-		jqeui('#1').removeClass(oldClassName);
-		jqeui('#2').removeClass(oldClassName);
-		jqeui('#3').removeClass(oldClassName);
-		jqeui('#4').removeClass(oldClassName);
+function killRunnginThreads() {
+	clearInterval(simonGameApp.startGameSequenceId);
+	clearInterval(userActionObj.userActionCheckerId);
+}
+function startThreads() {
+	simonGameApp.startGameSequenceId = setInterval(computerActionThread, 1000);
+	userActionObj.userActionCheckerId = setInterval(userActionCheckerThread, 1000);
+}
+function restartGame() {
+	isGamePause = true;
+	resetGame();
+	updateSessionInfo(GAME_RESTARTING);
+	setTimeout( function() {
+		isGamePause = false;
+	}, restartDelay);
+}
+function confirmNRestartGame () {
+	isGamePause = true;
+	jqeui( "#dialog-confirm" ).dialog({
+	      resizable: false,
+	      height: "auto",
+	      width: 400,
+	      modal: true,
+	      buttons: {
+	        "Restart": function() {
+	        	restartGame();
+	        	startThreads();
+	        	jqeui( this ).dialog( "close" );
+	        },
+	        Cancel: function() {
+	          isGamePause = false;
+	          startThreads();
+	          jqeui( this ).dialog( "close" );
+	        }
+	      }
+	    });
+}
+function stopGame() {
+	updateSessionInfo(GAME_STOPPED);
+	updateCssClass(starBtnId, 'btn-game-unclicked', 'btn-game-clicked');
+	jqeui('#start-td').html("Start");
+	killRunnginThreads();
+	resetGame();
+}
+function updateSessionInfo(msg) {
+	var sessionInfo = null;
+	if (msg) {
+		sessionInfo = msg;
+	} else {
+		if (!simonGameApp.isGameLock && !simonGameApp.isErrorLoop) {
+			sessionInfo = USER_TURN;
+		} else if (simonGameApp.isGameLock && !simonGameApp.isErrorLoop) {
+			sessionInfo = COMPUTER_TURN;
+		}
 	}
 	
-	jqeui('#1').addClass(cssClassName);
-	jqeui('#2').addClass(cssClassName);
-	jqeui('#3').addClass(cssClassName);
-	jqeui('#4').addClass(cssClassName);
+	if (sessionInfo) {
+		jqeui('#current_session_id').html(sessionInfo);
+	}
+}
+function updateCssClass(elementId, newCssClass, oldCssClass) {
+	var elementObj = jqeui('#' + elementId);
+	if (oldCssClass) {
+		elementObj.removeClass(oldCssClass);
+	}
+	elementObj.addClass(newCssClass);
+}
+function changeButtonsPointerEvent(cssClassName, oldClassName) {
+	updateCssClass('1', cssClassName, oldClassName);
+	updateCssClass('2', cssClassName, oldClassName);
+	updateCssClass('3', cssClassName, oldClassName);
+	updateCssClass('4', cssClassName, oldClassName);
 }
 function resetGame() {
+	jqeui('#cnt_id').val("--");
 	simonGameApp.resetGame();
 	userActionObj.resetObject();
 }
 function computerActionThread() {
 	if (!simonGameApp.isComputerActionLoop) {
-		
 		gameController(computerActionCommand);
 	}
 }
@@ -104,106 +209,138 @@ function displayUpdatedCount() {
  * @param numberClicked
  */
 function gameController(callerCommand, numberClicked) {
-	if (callerCommand === computerActionCommand) {
-		/**
-		 * Steps are if the userPress is false.
-		 * 1. Get Random number.
-		 * 2. Push the sequnce number into array.
-		 * 3. Increment count.
-		 * 4. Display the updated count.
-		 * 4. Press the button for the received sequence number.
-		 */
-		if (simonGameApp.isGameLock) {
-			simonGameApp.isComputerActionLoop = true;
-			var randomNumber = Math.floor((Math.random()*4) + 1);
-			simonGameApp.pushSequence.push(randomNumber);
-			simonGameApp.currentStep++;
-			displayUpdatedCount();
+	if (!isGamePause) {
+		if (callerCommand === computerActionCommand) {
+			/**
+			 * Steps are if the userPress is false.
+			 * 1. Get Random number.
+			 * 2. Push the sequnce number into array.
+			 * 3. Increment count.
+			 * 4. Display the updated count.
+			 * 4. Press the button for the received sequence number.
+			 */
+			if (simonGameApp.isGameLock && !simonGameApp.isErrorLoop) {
+				simonGameApp.isComputerActionLoop = true;
+				setTimeout(function() {
+						var randomNumber = Math.floor((Math.random()*4) + 1);
+						simonGameApp.pushSequence.push(randomNumber);
+						simonGameApp.currentStep++;
+						displayUpdatedCount();
+						pressCompleteSequence();
+						makeGameAvailableForUser(true);
+				}, delayForNextUser);
+			}
+		} else if (callerCommand === userActionCheckerCommand) {
+			if (!simonGameApp.isGameLock) {
+				if (userActionObj.isUserActionTimeout() && !simonGameApp.isErrorLoop) {
+					updateSessionInfo(TIME_OUT_ERROR);
+					raiseErrorNRepeat();
+				}
+			}
+		} else if (callerCommand === userActionCommand) {
+			changeButtonsPointerEvent('unclickable', 'clickable');
+			updateUserActionStartTime();
+			pressButton(numberClicked, -1, false);
 			
-			pressCompleteSequence();
-			//var timeOut = simonGameApp.pushSequence.length * 500;
-			var timeOut = 500;
-			setTimeout(enableUserAction, timeOut);
-			setTimeout(removeComputerActionLoop, timeOut);
-			setTimeout(function () {
-				userActionObj.lastActionDate = new Date();
-			}, timeOut);
+			//This delay to make the clicking completes. Otherwise, the button is not going back to its normal behaviour.
 			setTimeout(function() {
-				changeButtonsPointerEvent('clickable', 'unclickable');
-			}, timeOut);
-		}
-	} else if (callerCommand === userActionCheckerCommand) {
-		if (!simonGameApp.isGameLock) {
-			if (userActionObj.isUserActionTimeout() && !simonGameApp.isErrorLoop) {
-				raiseErrorNRepeat();
-			}
-		}
-	} else if (callerCommand === userActionCommand) {
-		userActionObj.lastActionDate = new Date();
-		pressButton(numberClicked, -1, false);
-		setTimeout(function() {
-			if(!userActionObj.isValidPress(numberClicked, simonGameApp.pushSequence)) {
-				userActionObj.resetObject();
-				raiseErrorNRepeat();
-				return;
-			} 
+				if(!userActionObj.isValidPress(numberClicked, simonGameApp.pushSequence)) {
+					updateSessionInfo(ERROR_MSG);
+					userActionObj.resetObject();
+					raiseErrorNRepeat();
+					return;
+				} else {
+					changeButtonsPointerEvent('clickable', 'unclickable');
+				}
+				
+				if(userActionObj.isClickingCompleted(simonGameApp.pushSequence)) {
+					simonGameApp.isGameLock = true;
+					changeButtonsPointerEvent('unclickable', 'clickable');
+					if(userActionObj.userPressSequenceArr.length === winStepsCount) {
+						isGamePause = true;
+						updateSessionInfo(GAME_WIN_MSG);
+						setTimeout(function() {
+							restartGame();
+							isGamePause = false;
+						}, 5000);
+					} else {
+						userActionObj.resetObject();
+					}
+				}
+			}, delayNextAction);
 			
-			if(userActionObj.isClickingCompleted(simonGameApp.pushSequence)) {
-				simonGameApp.isGameLock = true;
-				changeButtonsPointerEvent('unclickable', 'clickable');
-				userActionObj.resetObject();
-			}
-		}, 1250);
-		
-	} else {
-		alert('Invalid Command.','error');
-	}
-	updateSessionInfo();
-}
-function updateSessionInfo() {
-	var sessionInfo = "Computer Turn";
-	if (!simonGameApp.isGameLock) {
-		sessionInfo = "User Turn";
-	}
-	jqeui('#current_session_id').html(sessionInfo);
-}
-function pressButton(buttonNumber, ind, isRepeat) {
-	var oldColor = jqeui('#'+ buttonNumber).css('background-color');
-	jqeui('#'+ buttonNumber).css('background-color', colorLightArr[buttonNumber-1]);
-	//jqeui('#'+ buttonNumber).css('background-color', oldColor);
-	setTimeout(function() {
-		jqeui('#'+ buttonNumber).css('background-color', oldColor);
-		if(isRepeat) {
-			repeatClick(ind+1, isRepeat);
+		} else {
+			alert('Invalid Command.','error');
 		}
-	}, 500);
+		updateSessionInfo();
+	} else {
+		
+	}
 }
+function updateUserActionStartTime() {
+	userActionObj.lastActionDate = new Date();
+}
+function getDelayNextAction(isRepeat) {
+	var multiplier = 1;
+	if (isRepeat) {
+		multiplier = 2;
+	}
+	return (simonGameApp.pushSequence.length * delayNextAction * multiplier);
+}
+
 function raiseError() {
-	alert(">> Incorrect sequence..");
+	//alert(">> Incorrect sequence..");
+	soundObj.playError();
 }
 function pressCompleteSequence() {
 	repeatClick(0, true);
-	/*for (var x=0; x < this.pushSequence.length; x++) {
-		setTimeout(this.pressButton(this.pushSequence[x]), 1500);
-	}*/
 }
 function repeatClick(ind, isRepeat) {
 	if (ind < simonGameApp.pushSequence.length) {
 		pressButton(simonGameApp.pushSequence[ind], ind, isRepeat);
 	}
 }
+function pressButton(buttonNumber, ind, isRepeat) {
+	if (!isGamePause) {
+		var oldColor = jqeui('#'+ buttonNumber).css('background-color');
+		jqeui('#'+ buttonNumber).css('background-color', colorLightArr[buttonNumber-1]);
+		soundObj.playBeep(buttonNumber);
+		setTimeout(function() {
+			jqeui('#'+ buttonNumber).css('background-color', oldColor);
+			if(isRepeat) {
+				setTimeout(function() {
+					repeatClick(ind+1, isRepeat);
+					}, delayNextAction);
+			}
+		}, delayNextAction);
+	}
+}
 function raiseErrorNRepeat() {
 	changeButtonsPointerEvent('unclickable', 'clickable');
+	simonGameApp.isGameLock = true;
 	simonGameApp.isErrorLoop = true;
 	raiseError();
+	
 	if (!simonGameApp.isStrictMode) {
-		pressCompleteSequence();
-		setTimeout(enableUserAction, simonGameApp.pushSequence.length * 1500);
-		setTimeout(removeErrorLoop, simonGameApp.pushSequence.length * 1500);
+		//To start the repeating of the clicks after some delay. Otherwise, after user wrong click, it is starting the repeat quickly.
 		setTimeout(function() {
-			changeButtonsPointerEvent('clickable', 'unclickable');
-		}, simonGameApp.pushSequence.length * 1500);
+				updateSessionInfo(ERROR_REPEAT);
+				pressCompleteSequence();
+				makeGameAvailableForUser(true);
+		}, 500);
+	} else {
+		restartGame();
 	}
+}
+function makeGameAvailableForUser(isRepeatSeq) {
+	var timeOut = getDelayNextAction(true);
+	setTimeout(function() {
+		enableUserAction();
+		removeErrorLoop();
+		removeComputerActionLoop();
+		updateUserActionStartTime();
+		changeButtonsPointerEvent('clickable', 'unclickable');
+	}, timeOut);
 }
 function removeComputerActionLoop() {
 	simonGameApp.isComputerActionLoop = false;
@@ -238,11 +375,6 @@ var SimonGameApp = function() {
 		this.currentStep = 0;
 		this.pushSequence = [];
 		this.isStrictMode = false;
-		this.isGameStart = false;
-		if (this.startGameSequenceId) {
-			clearInterval(this.startGameSequenceId);
-		}
-		this.startGameSequenceId = null;
 	};
 	this.getCountString = function() {
 		if (this.currentStep < 10) {
@@ -251,7 +383,9 @@ var SimonGameApp = function() {
 		return this.currentStep;
 	}
 };
-
+/**
+ * Object to holds User actions.
+ */
 var UserAction = function(timeOutInterval) {
 	this.lastActionDate = null;
 	this.userClickIndex = 0;
@@ -263,10 +397,6 @@ var UserAction = function(timeOutInterval) {
 		this.userClickIndex = 0;
 		this.lastActionDate = null;
 		this.userPressSequenceArr = [];
-		/*if (this.userActionCheckerId) {
-			clearInterval(this.userActionCheckerId);
-		}*/
-		//this.userActionCheckerId = null;
 	};
 	/**
 	 * Validates if the user click matches the system pressed numbers.
@@ -304,5 +434,36 @@ var UserAction = function(timeOutInterval) {
 			result = true;
 		}
 		return result;
+	};
+};
+/**
+ * Sound Playing Object.
+ * @constructor
+ */
+var SoundHandler = function () {
+	
+	var redSoundId = new Audio('https://s3.amazonaws.com/freecodecamp/simonSound1.mp3');
+	var blueSoundId = new Audio('https://s3.amazonaws.com/freecodecamp/simonSound2.mp3');
+	var greenSoundId = new Audio('https://s3.amazonaws.com/freecodecamp/simonSound3.mp3');
+	var yellowSoundId = new Audio('https://s3.amazonaws.com/freecodecamp/simonSound4.mp3');
+	
+	var errorTone = new Audio('./audio/error.mp3');
+	this.playBeep = function(buttonNumber) {
+		if (buttonNumber === 1) {
+			redSoundId.play();
+		}
+		else if (buttonNumber === 2) {
+			blueSoundId.play();
+		}
+		else if (buttonNumber === 3) {
+			greenSoundId.play();
+		}
+		else if (buttonNumber === 4) {
+			yellowSoundId.play();
+		}
+	};
+	
+	this.playError = function() {
+		errorTone.play();
 	};
 };
