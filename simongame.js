@@ -1,8 +1,11 @@
+
+//Basic data information.
 var colorLightArr = ["#fed93f", "#1c8cff", "#13ff7c", "#ff4c4c"];
 var onOffBtnId = "togglebtn";
 var starBtnId = "start";
 var strictBtnId = "strict";
-var isGamePause = false;
+
+//Command Names for Thread and other actions.
 var userActionCheckerCommand = "userActionChecker";
 var computerActionCommand = "computerAction";
 var userActionCommand = "userAction";
@@ -27,11 +30,13 @@ var userActionTimeout = 5;
 var delayNextAction = 500;
 var delayForNextUser = 400;
 var restartDelay = 2000;
-var winStepsCount = 5;
+var winStepsCount = 20;
+
+//Global Game Controller Objects.
 var simonGameApp = null;
 var userActionObj = null;
 var soundObj = null;
-
+var isGamePause = false;
 var jqeui 	 = jQuery.noConflict();
 
 jqeui(function() {
@@ -101,9 +106,11 @@ jqeui(function() {
 		if (!jqeui(this).prop('checked')) {
 			stopGame();
 			simonGameApp.isGameStart = false;
+			jqeui('#cnt_id').val('');
 		} else {
 			resetGame();
 			simonGameApp.isGameStart = true;
+			jqeui('#cnt_id').val('--');
 		}
 	});
 });
@@ -368,7 +375,6 @@ var SimonGameApp = function() {
 		this.currentStep = 0;
 		this.pushSequence = [];
 		this.isStrictMode = false;
-		this.isGameStart = false;
 	};
 	this.getCountString = function() {
 		if (this.currentStep < 10) {
@@ -377,7 +383,9 @@ var SimonGameApp = function() {
 		return this.currentStep;
 	}
 };
-
+/**
+ * Object to holds User actions.
+ */
 var UserAction = function(timeOutInterval) {
 	this.lastActionDate = null;
 	this.userClickIndex = 0;
