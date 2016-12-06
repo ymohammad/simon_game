@@ -442,12 +442,13 @@ var UserAction = function(timeOutInterval) {
  */
 var SoundHandler = function () {
 	
-	var redSoundId = new Audio('https://s3.amazonaws.com/freecodecamp/simonSound1.mp3');
-	var blueSoundId = new Audio('https://s3.amazonaws.com/freecodecamp/simonSound2.mp3');
-	var greenSoundId = new Audio('https://s3.amazonaws.com/freecodecamp/simonSound3.mp3');
-	var yellowSoundId = new Audio('https://s3.amazonaws.com/freecodecamp/simonSound4.mp3');
+	var redSoundId = new Audio('https://github.com/ymohammad/simon_game/blob/master/audio/simonSound1.mp3?raw=true');
+	var blueSoundId = new Audio('https://github.com/ymohammad/simon_game/blob/master/audio/simonSound2.mp3?raw=true');
+	var greenSoundId = new Audio('https://github.com/ymohammad/simon_game/blob/master/audio/simonSound3.mp3?raw=true');
+	var yellowSoundId = new Audio('https://github.com/ymohammad/simon_game/blob/master/audio/simonSound4.mp3?raw=true');
 	
-	var errorTone = new Audio('./audio/error.mp3');
+	var errorTone = new Audio('https://github.com/ymohammad/simon_game/blob/master/audio/error.mp3?raw=true');
+							   
 	this.playBeep = function(buttonNumber) {
 		if (buttonNumber === 1) {
 			redSoundId.play();
