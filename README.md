@@ -10,7 +10,7 @@ It is a simple Game. Single player game and can be played against computer.
 6. Computer will press two buttons in this turn.
 7. In your turn, you need to press the same two buttons.
 8. Count shows how many buttons are pressed in the current turn.
-9. Sequence will repeat if you make a mistage,
+9. Sequence will repeat if you make a mistake,
 10. If 'Strict' button is turned on, game will be over and new game will start if you make mistake in sequence.
 
 
