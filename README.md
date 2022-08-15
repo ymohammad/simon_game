@@ -1,5 +1,7 @@
 # Simon Game
 
+Play Here: https://ymohammad.github.io/simon_game/
+
 It is a simple Game. Single player game and can be played against computer. 
 #### Steps to play the Game
 1. Turn on the game by pressing toggle button.
